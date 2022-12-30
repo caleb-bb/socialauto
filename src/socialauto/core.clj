@@ -21,7 +21,7 @@
       (clojure.string/join " " u))
   )
 
-(defn minds []
+(defn login-to-minds []
 
   (e/go driver "https://www.minds.com/beerscb/subscriptions")
   (e/click driver {:class "m-button m-button--grey m-button--small"})
@@ -30,7 +30,28 @@
   (e/fill driver {:id "password"} minds-password)
   (e/click driver {:class "m-login__button--login"}))
 
-(defn post-to-twitter [text]
+(defn mind [text]
+  (e/wait-visible driver {:class "m-icon__assetsFile ng-star-inserted"})
+ (e/click driver {:class "m-icon__assetsFile ng-star-inserted"})
+  (e/wait-visible driver {:data-cy "composer-textarea"})
+  (e/fill driver {:data-cy "composer-textarea"} text)
+  (e/wait-visible driver {:tag :button :class "m-button m-button--blue m-button--small m-button--dropdown":type "submit"})
+ (e/click-single driver {:tag :button :class "m-button m-button--blue m-button--small m-button--dropdown":type "submit"})
+  )
+
+(defn post-to-minds [text]
+ (login-to-minds)
+  (mind text)
+  )
+
+(defn tweet-substack [url]
+  (post-to-twitter (tweet-from-url url)))
+(defn tweet-minds [url]
+  (post-to-minds (tweet-from-url url)))
+
+;; TODO break down into login-to-twitter and post-to-twitter
+
+(defn login-to-twitter
   (e/go driver "https://twitter.com/login")
   (e/wait-visible driver {:tag :input :name :text})
   (e/fill driver {:tag :input :name :text} twitter-email)
@@ -42,6 +63,9 @@
   (e/wait-visible driver {:tag :input})
   (e/fill driver {:tag :input :name :password} twitter-password)
   (e/click driver {:data-testid :LoginForm_Login_Button})
+  )
+
+(defn tweet [text]
   (e/wait-visible driver {:data-testid :tweetTextarea_0RichTextInputContainer})
   (e/click driver {:tag :a :aria-label :Tweet})
   (e/wait-visible driver {:data-testid :tweetTextarea_0})
@@ -49,8 +73,7 @@
   (e/click driver {:data-testid :tweetButton})
   )
 
-;; (e/click driver {:class "minds-avatar"})
-
-;; (e/wait-visible driver {:class "m-button m-button--grey m-button--medium"})
-
-;; (e/click driver {:class "m-button m-button--grey m-button--medium"})
+(defn post-to-twitter [text]
+  (login-to-twitter)
+  (tweet text)
+  )
