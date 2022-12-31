@@ -10,4 +10,7 @@
                  [clj-http "3.12.3"]
                  [hiccup "1.0.5"]
                  ]
-  :repl-options {:init-ns socialauto.core})
+  :repl-options {:init-ns socialauto.core}
+  :main socialauto.core
+:dev-dependencies [[lein-run "1.0.0"]]
+  )
