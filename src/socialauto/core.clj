@@ -69,7 +69,7 @@
   (e/wait-visible driver {:data-cy "composer-textarea"})
   (e/fill driver {:data-cy "composer-textarea"} text)
   (e/wait-visible driver {:tag :button :class "m-button m-button--blue m-button--small m-button--dropdown":type "submit"})
-  (Thread/sleep 2000)
+  (Thread/sleep 10000)
  (e/click-single driver {:tag :button :class "m-button m-button--blue m-button--small m-button--dropdown":type "submit"})
   )
 
@@ -96,6 +96,12 @@
     (Thread/sleep 2000)
     (reload driver)
     (mind-blog substack-url)))
+
+(defn tweet-and-mind [url]
+    (post-to-twitter url)
+    (Thread/sleep 2000)
+    (reload driver)
+    (post-to-minds url))
 
 ;; (defn -main [& args]
 ;;   (tweet-blog (first args))

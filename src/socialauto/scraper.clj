@@ -162,17 +162,20 @@
 (defn top-ten [mapped-text]
   (n-most-common mapped-text 10))
 
-(defn first-thirty-words-from-text [text]
+(defn first-n-words-from-text [text n]
   (as-> text t
       (string/split t #" ")
-      (take 30 t)
+      (take n t)
       (string/join " " t)
       (string/join [t "..."])))
 
-(defn first-thirty-words-from-url [url]
+(defn first-n-words-from-url [url n]
   (-> url
       (url-to-text)
-      (first-thirty-words-from-text)))
+      (first-n-words-from-text)))
+
+(defn first-thirty-words-from-url [url]
+  (first-n-words-from-url url 30))
 
 ;these are just some pre-defined values for use in the REPL when testing/developing
 (def url "https://www.nytimes.com/search?dropmab=true&endDate=20200801&query=&sort=best&startDate=20200401")
