@@ -4,12 +4,15 @@
 
   (require '[socialauto.scraper :as scraper])
 
-(def driver (e/chrome))
+(def driver (e/firefox))
 (def phone-number (System/getenv "PHONE_NUMBER"))
 (def minds-username (System/getenv "MINDS_USERNAME"))
 (def minds-password (System/getenv "MINDS_PASSWORD"))
 (def twitter-email (System/getenv "TWITTER_EMAIL"))
 (def twitter-password (System/getenv "TWITTER_PASSWORD"))
+(def ivan-password (System/getenv "IVAN_PASSWORD"))
+(def ivan-username(System/getenv "IVAN_USERNAME"))
+(def ivan-url (System/getenv "IVAN_URL"))
 
 (defn reload [browser]
   (e/quit browser)
@@ -103,6 +106,35 @@
     (reload driver)
     (post-to-minds url))
 
+(defn any-offers? [count]
+
+  (Thread/sleep (* 1000 60 30) )
+  (let [text (e/get-element-text driver {:tag :h5 :id "offers-description"})]
+    (not (clojure.string/includes? text "Showing 0 job") )))
+
+(defn refresh-until-offers-available [count]
+  (println (str "None yet - have tried " count " times so far."))
+
+(e/click driver {:id "MoreOffersButton"})
+  (if (any-offers? count)
+    (print "Offers available!")
+    (recur (+ count 1)))
+    )
+
+(defn login-to-portal []
+  (e/go driver ivan-url)
+  (e/wait-visible driver {:class "modal-content background-customizable modal-content-desktop visible-md visible-lg"} {:tag :input :id "signInFormUsername" :type :text})
+;; I think I need a let binding here to let the js-execute do its thing.
+(e/js-execute driver (str "document.getElementById(arguments[0].id).value = '" ivan-username "';" ) {:tag :input :id :signInFormUsername} )
+(e/js-execute driver (str "document.getElementById(arguments[0].id).value = '" ivan-password "';" ) {:tag :input :id :signInFormPassword} )
+  ;; Just need to get it submit the form because it IS already changing the form vals
+(e/js-execute driver "document.getElementsByName(\"signInSubmitButton\")[0].click();")
+(e/wait-visible driver {:tag :a :href "/offers"})
+(e/click driver {:tag :a :href "/offers"})
+(e/wait-visible driver {:id "MoreOffersButton"})
+  (refresh-until-offers-available 0)
+  )
+
 ;; (defn -main [& args]
 ;;   (tweet-blog (first args))
 ;;   (Thread/sleep 2000)
@@ -110,4 +142,4 @@
 ;;   (mind-blog (first args)))
 
 ;; TODO make a wrapper that takes an action (fill, wait, click-single, etc.), a browser, and a tuple of selectors and then performs that action using that browser on that tuple *after* waiting for the element in question to appear and then an addition 1 second.
-(defn wait-then [action browser tuple])
+;; (defn wait-then [action browser tuple])
