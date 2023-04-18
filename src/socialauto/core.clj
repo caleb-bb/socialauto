@@ -13,6 +13,7 @@
 (def ivan-password (System/getenv "IVAN_PASSWORD"))
 (def ivan-username(System/getenv "IVAN_USERNAME"))
 (def ivan-url (System/getenv "IVAN_URL"))
+(defn now [] (java.util.Date.))
 
 (defn reload [browser]
   (e/quit browser)
@@ -108,20 +109,29 @@
 
 (defn any-offers? [count]
 
-  (Thread/sleep (* 1000 60 30) )
+  (Thread/sleep (* 1000 60) )
   (let [text (e/get-element-text driver {:tag :h5 :id "offers-description"})]
     (not (clojure.string/includes? text "Showing 0 job") )))
 
+      ;; (e/js-execute driver "document.querySelector('[id*=\"Claim\"]').click();")
+
+(defn claim [browser]
+(println "Attempting to claim...")
+  (def id (e/js-execute driver "document.querySelector('[id*=\"Claim-\"]').id" ))
+  (println "The id is " id)
+(e/js-execute driver (str "document.getElementById(" id ").click();")))
+
 (defn refresh-until-offers-available [count]
   (println (str "None yet - have tried " count " times so far."))
+  (println (str "Tried at: " (now) "\n"))
 
-(e/click driver {:id "MoreOffersButton"})
-  (if (any-offers? count)
-    (print "Offers available!")
-    (recur (+ count 1)))
-    )
-
+  (e/click driver {:id "MoreOffersButton"})
+    (if (any-offers? count)
+      (claim driver)
+      (recur (+ count 1)))
+      )
 (defn login-to-portal []
+  (reload driver)
   (e/go driver ivan-url)
   (e/wait-visible driver {:class "modal-content background-customizable modal-content-desktop visible-md visible-lg"} {:tag :input :id "signInFormUsername" :type :text})
 ;; I think I need a let binding here to let the js-execute do its thing.
@@ -131,9 +141,21 @@
 (e/js-execute driver "document.getElementsByName(\"signInSubmitButton\")[0].click();")
 (e/wait-visible driver {:tag :a :href "/offers"})
 (e/click driver {:tag :a :href "/offers"})
-(e/wait-visible driver {:id "MoreOffersButton"})
+(e/wait-visible driver {:id "MoreOffersButton"} [:timeout 180])
+(try
   (refresh-until-offers-available 0)
+     (catch Exception e (login-to-portal)))
   )
+
+(defn try-portal [times]
+(loop [tries times]
+  (println (str times " iterations left"))
+  (when (try
+          (login-to-portal)
+          false ; so 'when' is false, whatever 'might-throw-exception' returned
+          (catch Exception e
+            (pos? tries)))
+    (recur (dec tries)))))
 
 ;; (defn -main [& args]
 ;;   (tweet-blog (first args))
