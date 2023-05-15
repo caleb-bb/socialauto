@@ -9,6 +9,7 @@
                  [hickory "0.7.1"]
                  [clj-http "3.12.3"]
                  [hiccup "1.0.5"]
+                 [com.draines/postal "2.0.5"]
                  ]
   :repl-options {:init-ns socialauto.core}
   :main socialauto.core

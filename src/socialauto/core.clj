@@ -117,9 +117,13 @@
 
 (defn claim [browser]
 (println "Attempting to claim...")
-  (def id (e/js-execute driver "document.querySelector('[id*=\"Claim-\"]').id" ))
+  (let [id (e/js-execute driver "return document.querySelector('[id*=\"Claim-\"]').id" )]
   (println "The id is " id)
-(e/js-execute driver (str "document.getElementById(" id ").click();")))
+;; (e/js-execute driver (str "document.getElementById("
+;;                           id
+;;                           ").click();")))
+(e/click driver {:id id})
+  ))
 
 (defn refresh-until-offers-available [count]
   (println (str "None yet - have tried " count " times so far."))
@@ -130,6 +134,7 @@
       (claim driver)
       (recur (+ count 1)))
       )
+
 (defn login-to-portal []
   (reload driver)
   (e/go driver ivan-url)
