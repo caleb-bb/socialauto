@@ -123,12 +123,15 @@
 ;;                           id
 ;;                           ").click();")))
 (e/click driver {:id id})
+  (Thread/sleep (* 1000 10) )
+(throw (Exception. "Grabbed one!"))
   ))
 
 (defn refresh-until-offers-available [count]
   (println (str "None yet - have tried " count " times so far."))
   (println (str "Tried at: " (now) "\n"))
 
+  (e/wait-visible driver {:id "MoreOffersButton"})
   (e/click driver {:id "MoreOffersButton"})
     (if (any-offers? count)
       (claim driver)
