@@ -4,7 +4,7 @@
 
   (require '[socialauto.scraper :as scraper])
 
-(def driver (e/firefox))
+(def driver (e/firefox {:path-driver "/opt/homebrew/bin/geckodriver" :path-browser "/opt/homebrew/bin/firefox"}))
 (def phone-number (System/getenv "PHONE_NUMBER"))
 (def minds-username (System/getenv "MINDS_USERNAME"))
 (def minds-password (System/getenv "MINDS_PASSWORD"))
